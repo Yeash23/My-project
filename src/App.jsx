@@ -22,7 +22,7 @@ function App() {
          <Route path="/side4" element={<Side5/>} /> 
         <Route path="/finish" element={<Last/>} /> 
 
-        <Route path="/admin-view" element={<AdminSide2/>} />  
+        <Route path="/admin" element={<AdminSide2/>} />  
    
 
       </Routes>
