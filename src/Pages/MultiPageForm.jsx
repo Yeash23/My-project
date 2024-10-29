@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import image from '../assets/images/image.webp';
 import image1 from '../assets/images/image2.webp';
+import { Link } from 'react-router-dom';
 
 const MultiPageForm = () => {
     const [page, setPage] = useState(1);
@@ -231,9 +232,11 @@ const MultiPageForm = () => {
                                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
-                        <button type="submit" className="bg-black text-white px-9 py-4 mt-9">
+                       <Link to="/finish">
+                       <button type="submit" className="bg-black text-white px-9 py-4 mt-9">
                             Submit
                         </button>
+                        </Link>
                     </form>
                 </div>
             )}
