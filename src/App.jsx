@@ -8,6 +8,7 @@ import Side4 from './Pages/Side4'
 import Side5 from './Pages/Side5'
 import Last from './Pages/Last'
 import AdminSide2 from './View/AdminSide2'
+import Login from './Pages/Main/Login'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -23,6 +24,7 @@ function App() {
         <Route path="/finish" element={<Last/>} /> 
 
         <Route path="/yeash" element={<AdminSide2/>} />  
+        <Route path="/login" element={<Login/>} />  
    
 
       </Routes>

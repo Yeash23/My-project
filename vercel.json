@@ -1,0 +1,13 @@
+{
+    "rewrites": [
+      {
+        "source": "/yeash",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ]
+  }
+  
