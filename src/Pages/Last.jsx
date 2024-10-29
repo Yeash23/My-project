@@ -10,6 +10,12 @@ const Last = () => {
           Go Back 
                 </button>
             </Link>
+
+            <Link to="/yeash" className='mt-6'>
+            <button className='bg-black text-white px-9 py-4 mt-9 '>
+       Admin 
+                </button>
+            </Link>
         </div>
     );
 };
